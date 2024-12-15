@@ -1,0 +1,9 @@
+{
+  "requestContext" : true,
+  "action": "getUserSkuPaymentStatus",
+  "appid": "20220408G67l",
+  "gocid":"d0c5b9b9-8553-11ef-a92b-002590e818fa",
+  "PGTransactionId": "20241029s066072652419",
+  "TransactionId": "20241029s68c802e92315"
+}
+
