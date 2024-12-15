@@ -1,10 +1,15 @@
 package apis;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.net.URISyntaxException;
 import java.util.Map;
 
 public class WebClient {
     private Client webSocket;
+    private final ObjectMapper objectMapper=new ObjectMapper();
+
 
     private WebClient() {
     }
@@ -44,12 +49,18 @@ public class WebClient {
     }
 
 
-    public void sentMesssage(String message){
+    public void sentMesssage() throws JsonProcessingException {
+        Map<String, Object> requestData = Client.readJsonFromFile("src/main/java/Request/request.json");
+        String jsonRequest = objectMapper.writeValueAsString(requestData);
 
-        webSocket.onMessage(message);
+        webSocket.send(jsonRequest);
+        System.out.println("Sent json request :" + jsonRequest);
+
+
     }
 
     public void receivedMessage(){
+//        webSocket.onMessage();
 
     }
 }

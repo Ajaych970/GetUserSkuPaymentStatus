@@ -1,8 +1,12 @@
 package apis;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -12,6 +16,8 @@ public class Client extends WebSocketClient {
     SocketServiceData dataContext;
     Date openedTime=new Date();
     Date closedTime=new Date();
+
+    private final ObjectMapper objectMapper=new ObjectMapper();
 
 
     public Client(URI serverUri) {
@@ -37,9 +43,9 @@ public class Client extends WebSocketClient {
     public void onMessage(String message) {
         System.out.println("Received "+message);
         dataContext.messageList.add(message);
-        if(dataContext.expectedMessage.equals(message)){
-            closeConnection(1000,"Received expected message");
-        }
+//        if(dataContext.expectedMessage.equals(message)){
+//            closeConnection(1000,"Received expected message");
+//        }
     }
 
     @Override
@@ -59,5 +65,30 @@ public class Client extends WebSocketClient {
         int timeInSeconds=(int) (closedTime.getTime()-openedTime.getTime())/1000;
         dataContext.timeTaken=timeInSeconds;
         return timeInSeconds;
+    }
+
+    // Method to send JSON request
+    public void sendJsonRequest(Object requestData) {
+        try {
+            // Serialize the request object to JSON
+            String jsonRequest = objectMapper.writeValueAsString(requestData);
+            send(jsonRequest);
+            System.out.println("Sent JSON Request: " + jsonRequest);
+        } catch (JsonProcessingException e) {
+            System.err.println("Failed to serialize request data to JSON: " + e.getMessage());
+        }
+    }
+
+
+    // Method to read JSON from input file
+    public static Map<String, Object> readJsonFromFile(String filePath) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // Read the JSON from the file and convert it into a Map
+            return objectMapper.readValue(new File(filePath), Map.class);
+        } catch (IOException e) {
+            System.err.println("Failed to read JSON from file: " + e.getMessage());
+            return null;
+        }
     }
 }
