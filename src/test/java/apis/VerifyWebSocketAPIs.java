@@ -9,12 +9,14 @@ import org.testng.annotations.Test;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 public class VerifyWebSocketAPIs {
     SocketServiceData context;
+//    private WebClient_2 socketService;
     WebClient webClient;
 
 
@@ -29,14 +31,47 @@ public class VerifyWebSocketAPIs {
         context.timeOut=10;
         context.expectedMessage="This is a test";
         context.actualMessage="This is a test";
+//        socketService=new WebClient_2();
     }
 
-    @Test
-    public void verifyWebSocketAPI(){
+    @Test(invocationCount = 1000,threadPoolSize = 10)
+    public void verifyWebSocketAPIs() {
+        WebClient_2 socketService=new WebClient_2();
+        try {
+            // Step 1: Connect to the WebSocket
+            socketService.connectToWebSocket(context);
+
+            // Step 2: Send a message to the WebSocket
+            socketService.sendMessageToWebSocket();
+
+            // Step 3: Listen and handle WebSocket responses
+            socketService.listenAndHandle(context);
+
+        } catch (JsonProcessingException e) {
+            System.err.println("Error processing JSON request: " + e.getMessage());
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            System.err.println("Unexpected error during WebSocket test: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    @Test()
+    public void verifyWebSocketAPI() throws JsonProcessingException {
         SocketServiceData responseContext=WebClient.getInstance().connectAndListen(context);
         try {
             webClient.sentMesssage();
-        } catch (JsonProcessingException e) {
+//            webClient.sendMessageToWebSocket(responseContext);
+        } catch (JsonProcessingException | NullPointerException e) {
             throw new RuntimeException(e);
         }
 

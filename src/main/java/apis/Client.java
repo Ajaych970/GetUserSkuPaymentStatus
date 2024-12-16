@@ -11,11 +11,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 public class Client extends WebSocketClient {
     SocketServiceData dataContext;
     Date openedTime=new Date();
     Date closedTime=new Date();
+
+
 
     private final ObjectMapper objectMapper=new ObjectMapper();
 
@@ -41,8 +44,18 @@ public class Client extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
+        String receivedJsonData=null;
+        try {
+            Object jsonData = objectMapper.readValue(message, Object.class);
+            receivedJsonData = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonData);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         System.out.println("Received "+message);
-        dataContext.messageList.add(message);
+//        System.out.println("Received JsonData : "+receivedJsonData);
+//        dataContext.messageList.add(message);
+        close();
+
 //        if(dataContext.expectedMessage.equals(message)){
 //            closeConnection(1000,"Received expected message");
 //        }
@@ -90,5 +103,11 @@ public class Client extends WebSocketClient {
             System.err.println("Failed to read JSON from file: " + e.getMessage());
             return null;
         }
+    }
+
+
+    @Override
+    public void close() {
+        super.close();
     }
 }
